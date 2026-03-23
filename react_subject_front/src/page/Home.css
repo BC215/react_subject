@@ -1,0 +1,80 @@
+.home-wrapper {
+  padding: 20px;
+}
+
+.home-filter-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.home-input,
+.home-select {
+  padding: 8px;
+  min-width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.home-select {
+  min-width: 140px;
+}
+
+.home-button {
+  padding: 8px 14px;
+  border: 1px solid #333;
+  background-color: #f4f4f4;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.home-button:hover {
+  background-color: #e0e0e0;
+}
+
+.home-result-count {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.home-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.home-th,
+.home-td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.home-th-right,
+.home-td-right {
+  text-align: right;
+}
+
+.home-td {
+  border-bottom: 1px solid #eee;
+}
+
+.home-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.home-badge-초급 {
+  background-color: #28a745;
+}
+
+.home-badge-중급 {
+  background-color: #fd7e14;
+}
+
+.home-badge-고급 {
+  background-color: #dc3545;
+}
