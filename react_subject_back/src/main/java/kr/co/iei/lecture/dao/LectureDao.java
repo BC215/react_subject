@@ -9,7 +9,12 @@ import kr.co.iei.lecture.model.vo.Lecture;
 
 @Mapper
 public interface LectureDao {
-    List<Lecture> selectAll();
+    List<Lecture> selectAll(
+        @Param("sort") String sort,
+        @Param("category") Integer category,
+        @Param("level") Integer level,
+        @Param("title") String title);
+
     Lecture selectById(@Param("subjectNo") Long subjectNo);
     int insert(Lecture lecture);
     int update(Lecture lecture);

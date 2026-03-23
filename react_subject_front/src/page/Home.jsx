@@ -2,32 +2,63 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./Home.css";
 
-const levels = { 초급: 1, 중급: 2, 고급: 3 };
-
 const categoryText = (val) => {
-  if (val === 1 || val === "1") return "백엔드";
-  if (val === 2 || val === "2") return "프론트엔드";
-  if (val === 3 || val === "3") return "DB";
-  return val || "";
+  const category = String(val);
+
+  switch (category) {
+    case "1":
+      return "백엔드";
+    case "2":
+      return "프론트엔드";
+    case "3":
+      return "DB";
+    default:
+      return val || "";
+  }
 };
 
 const levelText = (val) => {
-  if (val === 1 || val === "1" || val === "초급") return "초급";
-  if (val === 2 || val === "2" || val === "중급") return "중급";
-  if (val === 3 || val === "3" || val === "고급") return "고급";
-  return val || "";
+  const level = String(val);
+
+  switch (level) {
+    case "1":
+    case "초급":
+      return "초급";
+    case "2":
+    case "중급":
+      return "중급";
+    case "3":
+    case "고급":
+      return "고급";
+    default:
+      return val || "";
+  }
 };
+
+const teacherName = (item) =>
+  item.subject_instructor || item.subjectInstructor || item.teacher || "";
 
 const Home = () => {
   const [lectures, setLectures] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [level, setLevel] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("");
+  const [appliedLevel, setAppliedLevel] = useState("");
+  const [sort, setSort] = useState("created");
 
-  useEffect(() => {
-    console.log("Home useEffect fetch start");
+  const fetchLectures = () => {
+    console.log("Home fetchLectures sort", sort);
     axios
-      .get("http://localhost:8989/api/lectures")
+      .get("http://localhost:8989/api/lectures", {
+        params: {
+          sort: sort,
+          category: appliedCategory,
+          level: appliedLevel,
+          title: search,
+        },
+      })
       .then((res) => {
         console.log("axios response", res);
         setLectures(res.data);
@@ -35,31 +66,54 @@ const Home = () => {
       .catch((err) => {
         console.error("Failed to load lectures:", err);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchLectures();
+  }, [sort]);
 
   let filteredLectures = lectures.filter((item) => {
-    const title = item.subjectTitle || item.title || "";
-    const matchesSearch = title
-      .toLowerCase()
-      .includes(search.trim().toLowerCase());
+    const title = item.subject_title || item.subjectTitle || item.title || "";
+    if (search.trim() !== "") {
+      const lowerTitle = title.toLowerCase();
+      const lowerSearch = search.trim().toLowerCase();
+      if (!lowerTitle.includes(lowerSearch)) {
+        return false;
+      }
+    }
 
-    const rawCategory = item.subjectCategory ?? item.category;
-    const matchesCategory =
-      category === "" || String(rawCategory) === String(category);
+    const rawCategory =
+      item.subject_category ?? item.subjectCategory ?? item.category;
+    if (
+      appliedCategory !== "" &&
+      String(rawCategory) !== String(appliedCategory)
+    ) {
+      return false;
+    }
 
-    const rawLevel = item.subjectLevel ?? item.level ?? item.subject_level;
-    const matchesLevel =
-      level === "" || levelText(rawLevel) === levelText(level);
+    const rawLevel = item.subject_level ?? item.subjectLevel ?? item.level;
+    if (
+      appliedLevel !== "" &&
+      levelText(rawLevel) !== levelText(appliedLevel)
+    ) {
+      return false;
+    }
 
-    return matchesSearch && matchesCategory && matchesLevel;
+    return true;
   });
 
-
   const resetFilters = () => {
+    setSearchInput("");
     setSearch("");
     setCategory("");
     setLevel("");
+    setAppliedCategory("");
+    setAppliedLevel("");
+    setSort("created");
+    fetchLectures();
   };
+
+  const sortedLectures = filteredLectures;
 
   return (
     <div className="home-wrapper">
@@ -69,8 +123,8 @@ const Home = () => {
         <input
           type="text"
           placeholder="강의명 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           className="home-input"
         />
 
@@ -96,9 +150,33 @@ const Home = () => {
           <option value="3">고급</option>
         </select>
 
+        <button
+          onClick={() => {
+            setSearch(searchInput);
+            setAppliedCategory(category);
+            setAppliedLevel(level);
+            fetchLectures();
+          }}
+          className="home-button"
+        >
+          검색
+        </button>
+
         <button onClick={resetFilters} className="home-button">
           초기화
         </button>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="home-select home-select-right"
+        >
+          <option value="created">작성순</option>
+          <option value="levelAsc">난이도 오름차순</option>
+          <option value="levelDesc">난이도 내림차순</option>
+          <option value="studentsAsc">수강인원 오름차순</option>
+          <option value="studentsDesc">수강인원 내림차순</option>
+        </select>
       </div>
 
       <div className="home-result-count">검색결과</div>
@@ -114,12 +192,18 @@ const Home = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredLectures.map((item) => (
+          {sortedLectures.map((item) => (
             <tr key={item.subjectNo || item.id || Math.random()}>
-              <td className="home-td">{item.subjectTitle || item.title}</td>
-              <td className="home-td"></td>
               <td className="home-td">
-                {categoryText(item.subjectCategory || item.category)}
+                {item.subject_title || item.subjectTitle || item.title}
+              </td>
+              <td className="home-td">{teacherName(item)}</td>
+              <td className="home-td">
+                {categoryText(
+                  item.subject_category ||
+                    item.subjectCategory ||
+                    item.category,
+                )}
               </td>
               <td className="home-td">
                 <span
@@ -131,7 +215,7 @@ const Home = () => {
                 </span>
               </td>
               <td className="home-td home-td-right">
-                {item.subjectCount || item.students}
+                {item.subject_count || item.subjectCount || item.students || 0}
               </td>
               <td className="home-td">{item.createdAt}</td>
             </tr>

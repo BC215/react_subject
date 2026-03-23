@@ -13,10 +13,28 @@
         <result property="subjectCount" column="subject_count"/>
     </resultMap>
 
-    <select id="selectAll" resultMap="LectureMap">
+    <select id="selectAll" resultMap="LectureMap" parameterType="map">
         SELECT *
         FROM subject_tbl
-        ORDER BY subject_no DESC
+        <where>
+            <if test="category != null">
+                AND subject_category = #{category}
+            </if>
+            <if test="level != null">
+                AND subject_level = #{level}
+            </if>
+            <if test="title != null and title != ''">
+                AND lower(subject_title) LIKE CONCAT('%', lower(#{title}), '%')
+            </if>
+        </where>
+
+        <choose>
+            <when test="sort == 'levelAsc'">ORDER BY subject_level ASC</when>
+            <when test="sort == 'levelDesc'">ORDER BY subject_level DESC</when>
+            <when test="sort == 'studentsAsc'">ORDER BY subject_count ASC</when>
+            <when test="sort == 'studentsDesc'">ORDER BY subject_count DESC</when>
+            <otherwise>ORDER BY subject_no DESC</otherwise>
+        </choose>
     </select>
 
     <select id="selectById" resultMap="LectureMap" parameterType="long">

@@ -9,7 +9,7 @@ import kr.co.iei.lecture.model.vo.Lecture;
 import kr.co.iei.lecture.service.LectureService;
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(value="*")
+@CrossOrigin(value = "*")
 @RestController
 @RequestMapping("/api/lectures")
 @RequiredArgsConstructor
@@ -18,8 +18,14 @@ public class LectureController {
     private final LectureService lectureService;
 
     @GetMapping
-    public ResponseEntity<List<Lecture>> getAll() {
-        return ResponseEntity.ok(lectureService.getAll());
+    public ResponseEntity<List<Lecture>> getAll(
+            @RequestParam(value = "sort", defaultValue = "created") String sort,
+            @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "level", required = false) Integer level,
+            @RequestParam(value = "title", required = false) String title) {
+
+        List<Lecture> lectures = lectureService.getAll(sort, category, level, title);
+        return ResponseEntity.ok(lectures);
     }
 
     @GetMapping("/{subjectNo}")

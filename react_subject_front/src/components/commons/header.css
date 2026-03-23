@@ -3,8 +3,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  background-color: #2b2f3a;
+  background-color: rgb(251, 194, 235);
   color: #fff;
+  max-width: 90%;
+  margin: 0 auto;
 }
 
 .header-logo {
