@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+C:\Users\user1\Desktop\react_subject\react_subject_back\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+950708487.index
+1116170860.index
+1027575499.index
+739551563.index
+1518179740.index
+1795751897.index

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.iei.lecture.dao.LectureDao">
+    <resultMap id="LectureMap" type="kr.co.iei.lecture.model.vo.Lecture">
+        <id property="subjectNo" column="subject_no"/>
+        <result property="subjectTitle" column="subject_title"/>
+        <result property="subjectInstructor" column="subject_instructor"/>
+        <result property="subjectCategory" column="subject_category"/>
+        <result property="subjectLevel" column="subject_level"/>
+        <result property="subjectCount" column="subject_count"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="LectureMap">
+        SELECT *
+        FROM subject_tbl
+        ORDER BY subject_no DESC
+    </select>
+
+    <select id="selectById" resultMap="LectureMap" parameterType="long">
+        SELECT *
+        FROM subject_tbl
+        WHERE subject_no = #{subjectNo}
+    </select>
+
+    <insert id="insert" parameterType="kr.co.iei.lecture.model.vo.Lecture"
+            useGeneratedKeys="true" keyProperty="subjectNo">
+        INSERT INTO subject_tbl(
+            subject_no, subject_title, subject_instructor,
+            subject_category, subject_level, subject_count
+        ) VALUES (
+            subject_seq.nextval,
+            #{subjectTitle}, #{subjectInstructor},
+            #{subjectCategory}, #{subjectLevel}, #{subjectCount}
+        )
+    </insert>
+
+    <update id="update" parameterType="kr.co.iei.lecture.model.vo.Lecture">
+        UPDATE subject_tbl
+        SET subject_title = #{subjectTitle},
+            subject_instructor = #{subjectInstructor},
+            subject_category = #{subjectCategory},
+            subject_level = #{subjectLevel},
+            subject_count = #{subjectCount}
+        WHERE subject_no = #{subjectNo}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM subject_tbl WHERE subject_no = #{subjectNo}
+    </delete>
+</mapper>

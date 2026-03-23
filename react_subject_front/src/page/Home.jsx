@@ -1,73 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import "./Home.css";
 
 const levels = { 초급: 1, 중급: 2, 고급: 3 };
 
-const dummyLectures = [
-  {
-    id: 1,
-    title: "React 기초",
-    category: "프론트엔드",
-    level: "초급",
-    students: 120,
-    createdAt: "2025-10-01",
-  },
-  {
-    id: 2,
-    title: "Node.js API",
-    category: "백엔드",
-    level: "중급",
-    students: 80,
-    createdAt: "2025-09-12",
-  },
-  {
-    id: 3,
-    title: "MySQL 실습",
-    category: "DB",
-    level: "초급",
-    students: 45,
-    createdAt: "2025-08-25",
-  },
-  {
-    id: 4,
-    title: "TypeScript 심화",
-    category: "프론트엔드",
-    level: "고급",
-    students: 60,
-    createdAt: "2025-11-05",
-  },
-];
+const categoryText = (val) => {
+  if (val === 1 || val === "1") return "백엔드";
+  if (val === 2 || val === "2") return "프론트엔드";
+  if (val === 3 || val === "3") return "DB";
+  return val || "";
+};
+
+const levelText = (val) => {
+  if (val === 1 || val === "1" || val === "초급") return "초급";
+  if (val === 2 || val === "2" || val === "중급") return "중급";
+  if (val === 3 || val === "3" || val === "고급") return "고급";
+  return val || "";
+};
 
 const Home = () => {
+  const [lectures, setLectures] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [level, setLevel] = useState("");
-  const [sort, setSort] = useState("created");
 
-  let filteredLectures = dummyLectures.filter((item) => {
-    const matchesSearch = item.title
+  useEffect(() => {
+    console.log("Home useEffect fetch start");
+    axios
+      .get("http://localhost:8989/api/lectures")
+      .then((res) => {
+        console.log("axios response", res);
+        setLectures(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to load lectures:", err);
+      });
+  }, []);
+
+  let filteredLectures = lectures.filter((item) => {
+    const title = item.subjectTitle || item.title || "";
+    const matchesSearch = title
       .toLowerCase()
       .includes(search.trim().toLowerCase());
-    const matchesCategory = category === "" || item.category === category;
-    const matchesLevel = level === "" || item.level === level;
+
+    const rawCategory = item.subjectCategory ?? item.category;
+    const matchesCategory =
+      category === "" || String(rawCategory) === String(category);
+
+    const rawLevel = item.subjectLevel ?? item.level ?? item.subject_level;
+    const matchesLevel =
+      level === "" || levelText(rawLevel) === levelText(level);
+
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
-  filteredLectures.sort((a, b) => {
-    if (sort === "created")
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    if (sort === "levelAsc") return levels[a.level] - levels[b.level];
-    if (sort === "levelDesc") return levels[b.level] - levels[a.level];
-    if (sort === "studentsAsc") return a.students - b.students;
-    if (sort === "studentsDesc") return b.students - a.students;
-    return 0;
-  });
 
   const resetFilters = () => {
     setSearch("");
     setCategory("");
     setLevel("");
-    setSort("created");
   };
 
   return (
@@ -89,9 +80,9 @@ const Home = () => {
           className="home-select"
         >
           <option value="">전체 카테고리</option>
-          <option value="프론트엔드">프론트엔드</option>
-          <option value="백엔드">백엔드</option>
-          <option value="DB">DB</option>
+          <option value="1">백엔드</option>
+          <option value="2">프론트엔드</option>
+          <option value="3">DB</option>
         </select>
 
         <select
@@ -100,21 +91,9 @@ const Home = () => {
           className="home-select"
         >
           <option value="">전체 난이도</option>
-          <option value="초급">초급</option>
-          <option value="중급">중급</option>
-          <option value="고급">고급</option>
-        </select>
-
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="home-select"
-        >
-          <option value="created">작성순</option>
-          <option value="levelAsc">난이도 오름차순</option>
-          <option value="levelDesc">난이도 내림차순</option>
-          <option value="studentsAsc">수강인원 오름차순</option>
-          <option value="studentsDesc">수강인원 내림차순</option>
+          <option value="1">초급</option>
+          <option value="2">중급</option>
+          <option value="3">고급</option>
         </select>
 
         <button onClick={resetFilters} className="home-button">
@@ -127,24 +106,33 @@ const Home = () => {
       <table className="home-table">
         <thead>
           <tr>
-            <th className="home-th">제목</th>
+            <th className="home-th">강의명</th>
+            <th className="home-th">강사명</th>
             <th className="home-th">카테고리</th>
             <th className="home-th">난이도</th>
             <th className="home-th home-th-right">수강인원</th>
-            <th className="home-th">작성일</th>
           </tr>
         </thead>
         <tbody>
           {filteredLectures.map((item) => (
-            <tr key={item.id}>
-              <td className="home-td">{item.title}</td>
-              <td className="home-td">{item.category}</td>
+            <tr key={item.subjectNo || item.id || Math.random()}>
+              <td className="home-td">{item.subjectTitle || item.title}</td>
+              <td className="home-td"></td>
               <td className="home-td">
-                <span className={`home-badge home-badge-${item.level}`}>
-                  {item.level}
+                {categoryText(item.subjectCategory || item.category)}
+              </td>
+              <td className="home-td">
+                <span
+                  className={`home-badge home-badge-${levelText(item.subjectLevel ?? item.level ?? item.subject_level)}`}
+                >
+                  {levelText(
+                    item.subjectLevel ?? item.level ?? item.subject_level,
+                  )}
                 </span>
               </td>
-              <td className="home-td home-td-right">{item.students}</td>
+              <td className="home-td home-td-right">
+                {item.subjectCount || item.students}
+              </td>
               <td className="home-td">{item.createdAt}</td>
             </tr>
           ))}
