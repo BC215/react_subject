@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./Home.css";
 
+// 카테고리 번호를 한글 텍스트로 변환
 const categoryText = (val) => {
   const category = String(val);
 
@@ -17,6 +18,7 @@ const categoryText = (val) => {
   }
 };
 
+// 난이도 값을 한글 텍스트로 변환
 const levelText = (val) => {
   const level = String(val);
 
@@ -35,19 +37,30 @@ const levelText = (val) => {
   }
 };
 
+// 강사명 추출
 const teacherName = (item) =>
   item.subject_instructor || item.subjectInstructor || item.teacher || "";
 
+// 강의 목록 페이지
 const Home = () => {
+  // 강의 목록 상태
   const [lectures, setLectures] = useState([]);
+  // 검색 입력값 상태
   const [searchInput, setSearchInput] = useState("");
+  // 실제 검색에 사용되는 값
   const [search, setSearch] = useState("");
+  // 선택된 카테고리
   const [category, setCategory] = useState("");
+  // 선택된 난이도
   const [level, setLevel] = useState("");
+  // 적용된 카테고리(검색 시)
   const [appliedCategory, setAppliedCategory] = useState("");
+  // 적용된 난이도(검색 시)
   const [appliedLevel, setAppliedLevel] = useState("");
+  // 정렬 기준
   const [sort, setSort] = useState("created");
 
+  // 강의 목록 불러오기 
   const fetchLectures = () => {
     console.log("Home fetchLectures sort", sort);
     axios
@@ -68,10 +81,12 @@ const Home = () => {
       });
   };
 
+  // 정렬 기준이 변경될 때마다 강의 목록 재요청
   useEffect(() => {
     fetchLectures();
   }, [sort]);
 
+  // 검색/필터링된 강의 목록
   let filteredLectures = lectures.filter((item) => {
     const title = item.subject_title || item.subjectTitle || item.title || "";
     if (search.trim() !== "") {
@@ -102,6 +117,7 @@ const Home = () => {
     return true;
   });
 
+  // 모든 필터와 검색어 초기화
   const resetFilters = () => {
     setSearchInput("");
     setSearch("");
@@ -113,8 +129,10 @@ const Home = () => {
     fetchLectures();
   };
 
+  // 정렬된 강의 목록
   const sortedLectures = filteredLectures;
 
+  // 렌더링
   return (
     <div className="home-wrapper">
       <h1>강의 목록</h1>
