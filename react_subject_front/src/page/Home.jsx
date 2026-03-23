@@ -3,6 +3,41 @@ import "./Home.css";
 
 const levels = { 초급: 1, 중급: 2, 고급: 3 };
 
+const dummyLectures = [
+  {
+    id: 1,
+    title: "React 기초",
+    category: "프론트엔드",
+    level: "초급",
+    students: 120,
+    createdAt: "2025-10-01",
+  },
+  {
+    id: 2,
+    title: "Node.js API",
+    category: "백엔드",
+    level: "중급",
+    students: 80,
+    createdAt: "2025-09-12",
+  },
+  {
+    id: 3,
+    title: "MySQL 실습",
+    category: "DB",
+    level: "초급",
+    students: 45,
+    createdAt: "2025-08-25",
+  },
+  {
+    id: 4,
+    title: "TypeScript 심화",
+    category: "프론트엔드",
+    level: "고급",
+    students: 60,
+    createdAt: "2025-11-05",
+  },
+];
+
 const Home = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -87,9 +122,7 @@ const Home = () => {
         </button>
       </div>
 
-      <div className="home-result-count">
-        검색결과 {filteredLectures.length}개
-      </div>
+      <div className="home-result-count">검색결과</div>
 
       <table className="home-table">
         <thead>
