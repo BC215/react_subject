@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./Home.css";
 
+const base = import.meta.env.VITE_BACKSERVER || "";
+
 // 카테고리 번호를 한글 텍스트로 변환
 const categoryText = (val) => {
   const category = String(val);
@@ -60,11 +62,11 @@ const Home = () => {
   // 정렬 기준
   const [sort, setSort] = useState("created");
 
-  // 강의 목록 불러오기 
+  // 강의 목록 불러오기
   const fetchLectures = () => {
-    console.log("Home fetchLectures sort", sort);
+    console.log("Home fetchLectures sort", sort, "base url", base);
     axios
-      .get("http://localhost:8989/api/lectures", {
+      .get(`${base}/api/lectures`, {
         params: {
           sort: sort,
           category: appliedCategory,
@@ -77,7 +79,7 @@ const Home = () => {
         setLectures(res.data);
       })
       .catch((err) => {
-        console.error("Failed to load lectures:", err);
+        console.error("Failed to load lectures:", err?.message || err);
       });
   };
 
